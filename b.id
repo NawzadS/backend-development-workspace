@@ -1,0 +1,1 @@
+  const index = books.findIndex(b = === id);
