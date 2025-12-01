@@ -1,35 +1,53 @@
 ﻿require('dotenv').config();
+const bcrypt = require('bcryptjs');
 const { sequelize, User, Project, Task } = require('./setup');
 
 async function seed() {
   try {
     await sequelize.authenticate();
 
-    const user = await User.create({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'TEMP_PLAIN_PASSWORD' // will not be used for real login
+    const hashedPassword = await bcrypt.hash('password123', 10);
+
+    const john = await User.create({
+      username: 'John Employee',
+      email: 'john@company.com',
+      password: hashedPassword,
+      role: 'employee'
     });
 
-    const project1 = await Project.create({
-      name: 'School Tasks',
-      description: 'Assignments and projects',
-      userId: user.id
+    const sarah = await User.create({
+      username: 'Sarah Manager',
+      email: 'sarah@company.com',
+      password: hashedPassword,
+      role: 'manager'
     });
 
-    const project2 = await Project.create({
-      name: 'Personal Tasks',
-      description: 'Random life stuff',
-      userId: user.id
+    const mike = await User.create({
+      username: 'Mike Admin',
+      email: 'mike@company.com',
+      password: hashedPassword,
+      role: 'admin'
+    });
+
+    const projectA = await Project.create({
+      name: 'Website Redesign',
+      description: 'Redesign the company website',
+      userId: sarah.id
+    });
+
+    const projectB = await Project.create({
+      name: 'Internal Tooling',
+      description: 'Build internal tools for employees',
+      userId: mike.id
     });
 
     await Task.bulkCreate([
-      { title: 'Finish backend homework', completed: false, projectId: project1.id },
-      { title: 'Clean room', completed: false, projectId: project2.id },
-      { title: 'Go to the gym', completed: false, projectId: project2.id }
+      { title: 'Create wireframes', completed: false, projectId: projectA.id },
+      { title: 'Set up CI pipeline', completed: false, projectId: projectB.id },
+      { title: 'Fix login bug', completed: false, projectId: projectB.id }
     ]);
 
-    console.log('✅ Seeded user, projects, and tasks');
+    console.log('✅ Seeded users with roles, projects, and tasks');
   } catch (err) {
     console.error('Seed error:', err.message);
   } finally {
@@ -37,8 +55,6 @@ async function seed() {
   }
 }
 
-// Only run when called directly: 
-ode database/seed.js
 if (require.main === module) {
   seed();
 }

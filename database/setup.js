@@ -11,7 +11,15 @@ const User = sequelize.define('User', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   username: { type: DataTypes.STRING, allowNull: false },
   email: { type: DataTypes.STRING, allowNull: false, unique: true },
-  password: { type: DataTypes.STRING, allowNull: false }
+  password: { type: DataTypes.STRING, allowNull: false },
+  role: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'employee',
+    validate: {
+      isIn: [['employee', 'manager', 'admin']]
+    }
+  }
 });
 
 const Project = sequelize.define('Project', {
@@ -28,7 +36,7 @@ const Task = sequelize.define('Task', {
   projectId: { type: DataTypes.INTEGER, allowNull: false }
 });
 
-// Relationships
+// relationships
 User.hasMany(Project, { foreignKey: 'userId' });
 Project.belongsTo(User, { foreignKey: 'userId' });
 
@@ -40,7 +48,7 @@ async function setup() {
     await sequelize.authenticate();
     console.log('✅ DB connection OK');
     await sequelize.sync({ force: true });
-    console.log('✅ Tables synced (User, Project, Task)');
+    console.log('✅ Tables synced (User with roles, Project, Task)');
   } catch (err) {
     console.error('DB setup error:', err.message);
   } finally {
@@ -48,8 +56,6 @@ async function setup() {
   }
 }
 
-// Only run when called directly: 
-ode database/setup.js
 if (require.main === module) {
   setup();
 }
