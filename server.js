@@ -1,11 +1,13 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { sequelize, User, Project, Task } = require('./database/setup');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // simple logger
 app.use((req, res, next) => {
@@ -128,7 +130,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// LOGOUT (stateless JWT) – just confirm, nothing to destroy
+// LOGOUT (stateless JWT) � just confirm, nothing to destroy
 app.post('/api/logout', (req, res) => {
   res.status(200).json({ message: 'Logout successful (client should discard token)' });
 });
@@ -244,5 +246,5 @@ app.delete('/api/projects/:id', authRequired, requireAdmin, async (req, res) => 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(\✅ JWT + Roles Task API running on port \\);
+  console.log(\? JWT + Roles Task API running on port \\);
 });
